@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <table border="1">
+        <thead>
+            <td>Артикул</td>
+            <td>Бренд</td>
+            <td>Категория</td>
+            <td>Модель</td>
+            <td>Количество</td>
+            <td>Стоимость</td>
+            <td>Краткое описание</td>
+            <td>Изображения</td>
+        </thead>
+        <tbody>
+        {% for object in object_list %}
+        <tr>
+            <td>{{ object.article }}</td>
+            <td>{{ object.brand.name }}</td>
+            <td>{{ object.category.name }}</td>
+            <td>{{ object.name }}</td>
+            <td>{{ object.quantity }}</td>
+            <td>{{ object.price }}</td>
+            <td>{{ object.short_description }}</td>
+            <td>{% for img in object.images_attr %} {{ img.image }} {% endfor %}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
