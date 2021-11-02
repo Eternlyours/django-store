@@ -1,9 +1,10 @@
+import requests
 from django.apps import apps
 from import_export import resources
 from import_export.fields import Field
 from import_export.widgets import ForeignKeyWidget
 
-from .models import Product
+from .models import Product, ProductImages
 
 
 class ProductResource(resources.ModelResource):
@@ -26,7 +27,7 @@ class ProductResource(resources.ModelResource):
     price = Field(column_name='Цена')
     
     class Meta:
-        batch_size = 5
+        batch_size = 1
         model = Product
         exclude = ('id', 'is_active', 'slug', )
         import_id_fields = ('article', )
@@ -35,6 +36,17 @@ class ProductResource(resources.ModelResource):
 
     def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
         for row in dataset.dict:
-            print(row['Характеристики'])
+            object = Product.objects.get(article=row['Артикул'])
+            # setattr(object, 'price', row['Цена'])
+            lists_raw = row['Картинки']
+
+            lists = lists_raw.replace("[", " ").replace("]", " ").replace(" '", " ").replace("' ", " ").replace(", ", " ").replace("'", " ").split()
             
+            for obj in lists:
+                resp = requests.get(obj)
+                ProductImages.objects.create(
+                    alt=row['Наименование'],
+                    image=resp.content,
+                    product=object
+                )
         return super().after_import(dataset, result, using_transactions, dry_run, **kwargs)
