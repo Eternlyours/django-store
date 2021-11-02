@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'products',
     'products_eav',
     'products_log',
+    'carts',
     'mptt',
     'import_export',
     'debug_toolbar',
