@@ -57,7 +57,7 @@ class ProductAdmin(ImportExportModelAdmin):
 
 
 class CategoryAdmin(admin.ModelAdmin):
-    pass
+    readonly_fields = ('slug', )
 
 
 class BrandAdmin(admin.ModelAdmin):

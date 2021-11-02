@@ -36,7 +36,7 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            slug = f'{unidecode(self.article)} - {unidecode(self.name)}'
+            slug = f'{self.article} - {unidecode(self.name)}'
             self.slug = slugify(slug)
         return super().save(*args, **kwargs)
 
