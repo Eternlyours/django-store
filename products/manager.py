@@ -39,9 +39,6 @@ class ProductManager(models.Manager):
         }
 
         defer = (
-            'meta_description',
-            'meta_keyword',
-            'description',
             'category__description',
             'category__icon',
             'category__image',

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ object.meta_description }}">
+    <meta name="keywords" content="{{ object.meta_keyword }}">
+    <title>Document</title>
+</head>
+<body>
+    <h1>{{ object.name }}</h1>
+    <h2>
+        {{ object.price }} 
+    </h2>
+    <small>{{ object.short_description }}</small>
+    <br>
+    {% for img in object.images_attr %} 
+                    <img src="{{ img.image.url }}" alt="" width="100" height="100" style="object-fit: cover;">
+    {% endfor %}
+    <br>
+    {{ object.description|safe }}
+</body>
+</html>

@@ -22,7 +22,7 @@
         {% for object in object_list %}
         <tr>
             <td>{{ object.article }}</td>
-            <td>{{ object.brand.name }}</td>
+            <td><a href="{% url 'product-detail' object.slug %}">{{ object.brand.name }}</a></td>
             <td>{{ object.category.name }}</td>
             <td>{{ object.name }}</td>
             <td>{{ object.quantity }}</td>
