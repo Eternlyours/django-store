@@ -1,5 +1,10 @@
+import os
+import urllib.request
+
 import requests
 from django.apps import apps
+from django.core.files import File
+from django.core.files.temp import NamedTemporaryFile
 from import_export import resources
 from import_export.fields import Field
 from import_export.widgets import ForeignKeyWidget
@@ -42,11 +47,22 @@ class ProductResource(resources.ModelResource):
 
             lists = lists_raw.replace("[", " ").replace("]", " ").replace(" '", " ").replace("' ", " ").replace(", ", " ").replace("'", " ").split()
             
-            for obj in lists:
-                resp = requests.get(obj)
-                ProductImages.objects.create(
-                    alt=row['Наименование'],
-                    image=resp.content,
-                    product=object
-                )
+            for url in lists:
+                # file, headers = urllib.request.urlretrieve(obj)
+                resp = requests.get(url)
+                temp_file = NamedTemporaryFile()
+                temp_file.write(resp.content)
+                temp_file.flush()
+                
+                image = ProductImages()
+                image.product = object
+                image.alt = row['Наименование']
+                image.image = File(temp_file, os.path.basename(resp.url))
+                image.save()
+
+                # ProductImages.objects.create(
+                #     alt=row['Наименование'],
+                #     image=file,
+                #     product=object
+                # )
         return super().after_import(dataset, result, using_transactions, dry_run, **kwargs)
