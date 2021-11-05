@@ -1,7 +1,9 @@
 import os
 import urllib.request
+from datetime import datetime
 
 import requests
+from dateutil import parser
 from django.apps import apps
 from django.core.files import File
 from django.core.files.temp import NamedTemporaryFile
@@ -27,6 +29,7 @@ class ProductResource(resources.ModelResource):
     short_description = Field(column_name='Краткое_описание', attribute='short_description')
     meta_keyword = Field(column_name='META_ключевые_слова', attribute='meta_keyword')
     meta_description = Field(column_name='META_описание', attribute='meta_description')
+    date = Field(column_name='Актуальная_дата')
     characteristics = Field(column_name='Характеристики')
     images = Field(column_name='Картинки')
     price = Field(column_name='Цена')
@@ -42,27 +45,25 @@ class ProductResource(resources.ModelResource):
     def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
         for row in dataset.dict:
             object = Product.objects.get(article=row['Артикул'])
-            # setattr(object, 'price', row['Цена'])
+            
+            obj = parser.parse(str(row['Актуальная_дата']))
+            date_str = datetime.strftime(obj, '%Y-%m-%d %H:%M:%S')
+            price_kwargs = {'price': row['Цена'], 'date': date_str}
+            setattr(object, 'price', price_kwargs)
+            
             lists_raw = row['Картинки']
 
             lists = lists_raw.replace("[", " ").replace("]", " ").replace(" '", " ").replace("' ", " ").replace(", ", " ").replace("'", " ").split()
             
-            for url in lists:
-                # file, headers = urllib.request.urlretrieve(obj)
-                resp = requests.get(url)
-                temp_file = NamedTemporaryFile()
-                temp_file.write(resp.content)
-                temp_file.flush()
+            # for url in lists:
+            #     resp = requests.get(url)
+            #     temp_file = NamedTemporaryFile()
+            #     temp_file.write(resp.content)
+            #     temp_file.flush()
                 
-                image = ProductImages()
-                image.product = object
-                image.alt = row['Наименование']
-                image.image = File(temp_file, os.path.basename(resp.url))
-                image.save()
-
-                # ProductImages.objects.create(
-                #     alt=row['Наименование'],
-                #     image=file,
-                #     product=object
-                # )
+            #     image = ProductImages()
+            #     image.product = object
+            #     image.alt = row['Наименование']
+            #     image.image = File(temp_file, os.path.basename(resp.url))
+            #     image.save()
         return super().after_import(dataset, result, using_transactions, dry_run, **kwargs)

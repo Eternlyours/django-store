@@ -1,4 +1,5 @@
 import uuid
+from datetime import date, datetime
 
 from django.contrib.contenttypes.fields import (GenericForeignKey,
                                                 GenericRelation)
@@ -18,11 +19,13 @@ class ProductAccouting(models.Model):
 
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     value = models.PositiveIntegerField('Количество')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='quantities', verbose_name='Товар')
-    date = models.DateTimeField('Дата создания', auto_now_add=True)
-    type = models.CharField(verbose_name='Тип поступления', choices=TYPE_OF_ADMISSION, max_length=1)
-
-    recorder = models.ForeignKey(ContentType, on_delete=models.CASCADE, verbose_name='Регистратор')
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name='quantities', verbose_name='Товар')
+    date = models.DateTimeField('Актуальная дата')
+    type = models.CharField(verbose_name='Тип поступления',
+                            choices=TYPE_OF_ADMISSION, max_length=1)
+    recorder = models.ForeignKey(
+        ContentType, on_delete=models.CASCADE, verbose_name='Регистратор')
     object_id = models.PositiveIntegerField(verbose_name='ID регистратора')
     content_object = GenericForeignKey('recorder', 'object_id')
 
@@ -35,8 +38,9 @@ class ProductAccouting(models.Model):
 
 
 class ProductDocumentReceipt(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Товар', related_name='documents_receipt')
-    date = models.DateTimeField('Дата создания', auto_now_add=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,
+                                verbose_name='Товар', related_name='documents_receipt')
+    date = models.DateTimeField('Дата создания')
     value = models.PositiveIntegerField('Значение')
     accounting = GenericRelation(ProductAccouting)
 
@@ -48,18 +52,22 @@ class ProductDocumentReceipt(models.Model):
         return f'Поступление №{self.id} от {self.date}'
 
     def save(self, *args, **kwargs) -> None:
+        if not self.date:
+            self.date = datetime.now()
         super().save(*args, **kwargs)
         ProductAccouting.objects.create(
             product=self.product,
             value=self.value,
             type=ProductAccouting.COMING,
-            content_object=self
+            content_object=self,
+            date=self.date
         )
 
 
 class ProductDocumentExpense(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Товар', related_name='documents_expense')
-    date = models.DateTimeField('Дата создания', auto_now_add=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,
+                                verbose_name='Товар', related_name='documents_expense')
+    date = models.DateTimeField('Дата создания')
     value = models.PositiveIntegerField('Значение')
     accounting = GenericRelation(ProductAccouting)
 
@@ -71,23 +79,27 @@ class ProductDocumentExpense(models.Model):
         return f'Расход №{self.id} от {self.date}'
 
     def save(self, *args, **kwargs) -> None:
+        if not self.date:
+            self.date = datetime.now()
         super().save(*args, **kwargs)
         ProductAccouting.objects.create(
             product=self.product,
             value=self.value,
             type=ProductAccouting.SPENDING,
-            content_object=self
+            content_object=self,
+            date=self.date
         )
 
 
 class ProductDocumentPrice(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='prices', verbose_name='Товар')
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name='prices', verbose_name='Товар')
     price = models.DecimalField('Цена', max_digits=15, decimal_places=2)
-    date = models.DateTimeField('Актуальная дата', auto_now_add=True)
+    date = models.DateTimeField('Актуальная дата')
 
     class Meta:
         verbose_name = 'Регистр цен'
         verbose_name_plural = 'Регистры цен'
-        
+
     def __str__(self):
         return f'{self.product} от {self.date}'

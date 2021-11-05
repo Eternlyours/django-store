@@ -3,6 +3,7 @@ from functools import cached_property
 from django.apps import apps
 from django.db import models
 from django.template.defaultfilters import slugify
+from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 from mptt.models import MPTTModel, TreeForeignKey
 from unidecode import unidecode
@@ -34,6 +35,9 @@ class Product(models.Model):
     def __str__(self) -> str:
         return f'{self.article} {self.name}'
 
+    def get_absolute_url(self):
+        return reverse_lazy('product-detail', kwargs={'slug': self.slug})
+
     def save(self, *args, **kwargs):
         if not self.slug:
             slug = f'{self.article} - {unidecode(self.name)}'
@@ -62,9 +66,9 @@ class Product(models.Model):
         return 0
     _get_price.short_description = 'Актуальная стоимость'    
 
-    def _set_price(self, value):
+    def _set_price(self, kwargs):
         ProductDocumentPrice = apps.get_model('products_log', 'ProductDocumentPrice')
-        doc = ProductDocumentPrice.objects.create(product=self, price=value)
+        doc = ProductDocumentPrice.objects.create(product=self, **kwargs)
         return doc
     _set_price.short_description = 'Быстрая запись актуальной цены'    
 

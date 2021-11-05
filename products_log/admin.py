@@ -38,7 +38,7 @@ class ProductDocumentMixin(admin.TabularInline):
     extra = 0
     min_num = 1
     ordering = ('-date', )
-    readonly_fields = ('date', )
+    # readonly_fields = ('date', )
     classes = ('collapse', )
     can_delete = False
     formset = ProductTabularinfoBaseFormset

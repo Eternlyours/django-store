@@ -13,6 +13,9 @@
     <h2>
         {{ object.price }} 
     </h2>
+    <p>
+        Кол-во: {{ object.quantity }}
+    </p>
     <small>{{ object.short_description }}</small>
     <br>
     {% for img in object.images_attr %} 
