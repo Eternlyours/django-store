@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% if object %}
+        {{ object.id }}
+        <table>
+            <thead>
+                <tr>
+                    <th>Артикул</th>
+                    <th>Наименование</th>
+                    <th>Стоимость</th>
+                    <th>На складе</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in object.cartitems.all %}
+                    <tr>
+                        <td>{{ item.product.article }}</td>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.product.price }}</td>
+                        <td>{{ item.product.quantity }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <strong>Отсутствуют товары в корзине</strong>
+    {% endif %}
+</body>
+</html>

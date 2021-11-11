@@ -11,6 +11,8 @@ from django.db.models.query_utils import Q
 class ProductManager(models.Manager):
 
     def get_product_list(self):
+        Product = apps.get_model(
+            'products', 'Product')
         ProductAccouting = apps.get_model(
             'products_log', 'ProductAccouting')
         ProductDocumentPrice = apps.get_model(
@@ -51,7 +53,8 @@ class ProductManager(models.Manager):
             'brand__description'
         )
         
-        list = super().get_queryset() \
+        # list = super().get_queryset() \
+        list = Product.objects.all() \
             .select_related('brand', 'category') \
             .prefetch_related('prices', 'quantities') \
             .prefetch_related(

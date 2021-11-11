@@ -24,6 +24,7 @@ urlpatterns = [
     # (r'^ckeditor/', include('ckeditor.urls')),
     path('admin/', admin.site.urls),
     path('', include('products.urls')),
+    path('', include('carts.urls')),
     path('__debug__/', include(debug_toolbar.urls)),
 ]
 
