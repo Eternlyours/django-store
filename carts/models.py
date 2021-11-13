@@ -40,3 +40,4 @@ class CartItem(models.Model):
                              related_name='cartitems', verbose_name='Корзина')
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, verbose_name='Товар в корзине')
+    quantity = models.IntegerField('Количество', default=1)

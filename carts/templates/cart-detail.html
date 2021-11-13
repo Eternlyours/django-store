@@ -17,6 +17,7 @@
                     <th>Наименование</th>
                     <th>Стоимость</th>
                     <th>На складе</th>
+                    <th>Количество</th>
                 </tr>
             </thead>
             <tbody>
@@ -26,6 +27,7 @@
                         <td>{{ item.product.name }}</td>
                         <td>{{ item.product.price }}</td>
                         <td>{{ item.product.quantity }}</td>
+                        <td>{{ item.quantity }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
