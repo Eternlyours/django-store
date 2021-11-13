@@ -1,18 +1,22 @@
-from django.db import models
-from django.contrib.auth.models import User
-from uuid import uuid4
+import uuid
 from datetime import datetime
+
+from django.contrib.auth.models import User
+from django.db import models
 from products.models import Product
+
+from .manager import CartManager
 
 
 class Cart(models.Model):
-    id = models.UUIDField('Идентификатор', default=uuid4,
-                          editable=False, unique=True, primary_key=True)
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='cart', verbose_name='Покупатель')
     created_at = models.DateTimeField('Время создания', auto_now_add=True)
     updated_at = models.DateTimeField('Время обновления', auto_now=True)
     is_active = models.BooleanField('Активность корзины', default=True)
+
+    objects = CartManager()
 
     class Meta:
         verbose_name = 'Корзина'
@@ -32,8 +36,7 @@ class Cart(models.Model):
 
 
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='cartitems', verbose_name='Корзина')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Товар в корзине')
-
-
-
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE,
+                             related_name='cartitems', verbose_name='Корзина')
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, verbose_name='Товар в корзине')

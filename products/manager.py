@@ -66,8 +66,8 @@ class ProductManager(models.Manager):
                 **alias_quantity
         ) \
             .annotate(
-                **annotate_quantity,
-                **annotate_price
+                # **annotate_quantity,
+                # **annotate_price
         ) \
         .defer(
             *defer

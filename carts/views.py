@@ -11,7 +11,7 @@ class CartDetailView(DetailView):
     template_name = 'cart-detail.html'
 
     def get_queryset(self):
-        return super().get_queryset().prefetch_related('cartitems', 'cartitems__product').filter(is_active=True)
+        return Cart.objects.filter(is_active=True)
 
     def get_object(self, queryset=None):
         self.queryset = self.get_queryset()

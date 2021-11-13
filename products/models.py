@@ -12,7 +12,7 @@ from .manager import ProductManager
 
 
 class Product(models.Model):
-    slug = models.SlugField('Семантический URL', unique=True)
+    slug = models.SlugField('Семантический URL', unique=True, max_length=255)
     name = models.CharField('Наименование', max_length=255)
     brand = models.ForeignKey('Brand', on_delete=models.CASCADE,
                               to_field='name', default='Stihl', verbose_name='Производитель')
@@ -60,9 +60,12 @@ class Product(models.Model):
     quantity = property(_get_quantity, _set_quantity)
 
     def _get_price(self):
+        from django.db.models.expressions import F
+
         if self.prices.exists():
-            if hasattr(self, 'actual_price'):
-                return getattr(self, 'actual_price')
+            # if hasattr(self, 'actual_price'):
+            #     return getattr(self, 'actual_price')            
+            return getattr(self.prices.last(), 'price')
         return 0
     _get_price.short_description = 'Актуальная стоимость'    
 

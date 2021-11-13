@@ -75,22 +75,22 @@ class ProductResource(resources.ModelResource):
             obj = parser.parse(str(row['Актуальная_дата']))
             date_str = datetime.strftime(obj, '%Y-%m-%d %H:%M:%S')
             price_kwargs = {'price': row['Цена'], 'date': date_str}
-            # setattr(object, 'price', price_kwargs)
+            setattr(object, 'price', price_kwargs)
 
             lists_raw = row['Картинки']
 
             lists = lists_raw.replace("[", " ").replace("]", " ").replace(
                 " '", " ").replace("' ", " ").replace(", ", " ").replace("'", " ").split()
 
-            # for url in lists:
-            #     resp = requests.get(url)
-            #     temp_file = NamedTemporaryFile()
-            #     temp_file.write(resp.content)
-            #     temp_file.flush()
+            for url in lists:
+                resp = requests.get(url)
+                temp_file = NamedTemporaryFile()
+                temp_file.write(resp.content)
+                temp_file.flush()
 
-            #     image = ProductImages()
-            #     image.product = object
-            #     image.alt = row['Наименование']
-            #     image.image = File(temp_file, os.path.basename(resp.url))
-            #     image.save()
+                image = ProductImages()
+                image.product = object
+                image.alt = row['Наименование']
+                image.image = File(temp_file, os.path.basename(resp.url))
+                image.save()
         return super().after_import(dataset, result, using_transactions, dry_run, **kwargs)
