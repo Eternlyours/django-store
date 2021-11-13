@@ -58,8 +58,7 @@ class Product(models.Model):
 
     def _get_price(self):
         if self.prices.exists():
-            if hasattr(self.prices.last(), 'price'):
-                return getattr(self.prices.last(), 'price')
+            return getattr(self.prices.last(), 'price')
         return 0
     _get_price.short_description = 'Актуальная стоимость'    
 
