@@ -3,7 +3,7 @@ from django.db import models
 from django.db.models.aggregates import Sum
 from django.db.models.expressions import ExpressionWrapper, F, OuterRef, Subquery, Value
 from django.db.models.fields import DecimalField, FloatField, IntegerField
-from django.db.models.functions import Coalesce, Concat
+from django.db.models.functions import Coalesce
 from django.db.models.query import Prefetch
 from django.db.models.query_utils import Q
 

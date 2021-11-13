@@ -1,5 +1,3 @@
-from functools import cached_property
-
 from django.apps import apps
 from django.db import models
 from django.template.defaultfilters import slugify
@@ -9,6 +7,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from unidecode import unidecode
 
 from .manager import ProductManager
+from .utils import get_and_calculate_the_quantity, set_price_or_quantity
 
 
 class Product(models.Model):
@@ -46,33 +45,27 @@ class Product(models.Model):
 
     def _get_quantity(self):
         if self.quantities.exists():
-            if hasattr(self, 'actual_quantity'):
-                return getattr(self, 'actual_quantity')
+            return get_and_calculate_the_quantity(self)
         return 0
     _get_quantity.short_description = 'Актуальное количество на складе'
 
-    def _set_quantity(self, value):
-        ProductDocumentReceipt = apps.get_model('produts_log', 'ProductDocumentReceipt')
-        doc = ProductDocumentReceipt.objects.create(product=self, value=value)
-        return doc
+    def _set_quantity(self, kwargs) -> None:
+        ProductDocumentReceipt = apps.get_model('products_log', 'ProductDocumentReceipt')
+        set_price_or_quantity(self, ProductDocumentReceipt, kwargs)
     _set_quantity.short_description = 'Быстрая запись поступления товара'
     
     quantity = property(_get_quantity, _set_quantity)
 
     def _get_price(self):
-        from django.db.models.expressions import F
-
         if self.prices.exists():
-            # if hasattr(self, 'actual_price'):
-            #     return getattr(self, 'actual_price')            
-            return getattr(self.prices.last(), 'price')
+            if hasattr(self.prices.last(), 'price'):
+                return getattr(self.prices.last(), 'price')
         return 0
     _get_price.short_description = 'Актуальная стоимость'    
 
-    def _set_price(self, kwargs):
+    def _set_price(self, kwargs) -> None:
         ProductDocumentPrice = apps.get_model('products_log', 'ProductDocumentPrice')
-        doc = ProductDocumentPrice.objects.create(product=self, **kwargs)
-        return doc
+        set_price_or_quantity(self, ProductDocumentPrice, kwargs)
     _set_price.short_description = 'Быстрая запись актуальной цены'    
 
     price = property(_get_price, _set_price)

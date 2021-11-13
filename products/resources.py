@@ -1,17 +1,13 @@
-import os
-import urllib.request
 from datetime import datetime
 
 import requests
 from dateutil import parser
 from django.apps import apps
-from django.core.files import File
-from django.core.files.temp import NamedTemporaryFile
 from import_export import resources
 from import_export.fields import Field
 from import_export.widgets import ForeignKeyWidget, ManyToManyWidget
 
-from products_log.models import ProductAccouting, ProductDocumentPrice
+from products_log.models import ProductAccouting, ProductDocumentPrice, ProductDocumentReceipt
 
 from .models import Product, ProductImages
 
@@ -71,26 +67,30 @@ class ProductResource(resources.ModelResource):
     def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
         for row in dataset.dict:
             object = Product.objects.get(article=row['Артикул'])
-
             obj = parser.parse(str(row['Актуальная_дата']))
             date_str = datetime.strftime(obj, '%Y-%m-%d %H:%M:%S')
             price_kwargs = {'price': row['Цена'], 'date': date_str}
-            setattr(object, 'price', price_kwargs)
+            if not ProductDocumentPrice.objects.filter(product=object, date=date_str).exists():
+                setattr(object, 'price', price_kwargs)
+
+            quantity_kwargs = {'value': row['Количество'], 'date': date_str}
+            if not ProductDocumentReceipt.objects.filter(product=object, date=date_str).exists():
+                setattr(object, 'quantity', quantity_kwargs)
 
             lists_raw = row['Картинки']
 
             lists = lists_raw.replace("[", " ").replace("]", " ").replace(
                 " '", " ").replace("' ", " ").replace(", ", " ").replace("'", " ").split()
 
-            for url in lists:
-                resp = requests.get(url)
-                temp_file = NamedTemporaryFile()
-                temp_file.write(resp.content)
-                temp_file.flush()
+            # for url in lists:
+            #     resp = requests.get(url)
+            #     temp_file = NamedTemporaryFile()
+            #     temp_file.write(resp.content)
+            #     temp_file.flush()
 
-                image = ProductImages()
-                image.product = object
-                image.alt = row['Наименование']
-                image.image = File(temp_file, os.path.basename(resp.url))
-                image.save()
+            #     image = ProductImages()
+            #     image.product = object
+            #     image.alt = row['Наименование']
+            #     image.image = File(temp_file, os.path.basename(resp.url))
+            #     image.save()
         return super().after_import(dataset, result, using_transactions, dry_run, **kwargs)
