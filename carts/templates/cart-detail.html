@@ -7,9 +7,10 @@
     <title>Document</title>
 </head>
 <body>
-    {{ object }}
-    {% if object %}
-        {{ object.id }}
+    {{ cart.calculate_quantity_items_in_cart }} | {{ cart.calculate_price_items_in_cart }}
+    <hr>
+    {{ cart }}
+    {% if cart %}
         <table>
             <thead>
                 <tr>
@@ -21,7 +22,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for item in object.cartitems.all %}
+                {% for item in cart.cartitems.all %}
                     <tr>
                         <td>{{ item.product.article }}</td>
                         <td>{{ item.product.name }}</td>

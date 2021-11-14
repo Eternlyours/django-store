@@ -29,6 +29,18 @@ class Cart(models.Model):
             status = 'Неактивна'
         return f'Корзина {self.user} - {datetime.strftime(self.created_at, "%m/%d/%Y, %H:%M:%S")} {status}'
 
+    def calculate_quantity_items_in_cart(self):
+        quantity = 0
+        for item in self.cartitems.all():
+            quantity += item.quantity
+        return quantity
+
+    def calculate_price_items_in_cart(self):
+        price = 0
+        for item in self.cartitems.all():
+            price += item.calculate_price_item()
+        return price
+
     def check_update(self):
         if self.created_at == self.updated_at:
             return False
@@ -41,3 +53,6 @@ class CartItem(models.Model):
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, verbose_name='Товар в корзине')
     quantity = models.IntegerField('Количество', default=1)
+
+    def calculate_price_item(self):
+        return self.quantity * self.product.price
