@@ -4,26 +4,32 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{{ object.meta_description }}">
-    <meta name="keywords" content="{{ object.meta_keyword }}">
+    <meta name="description" content="{{ product.meta_description }}">
+    <meta name="keywords" content="{{ product.meta_keyword }}">
     <title>Document</title>
 </head>
 <body>
     {{ cart.calculate_quantity_items_in_cart }} | {{ cart.calculate_price_items_in_cart }}
     <hr>
-    <h1>{{ object.name }}</h1>
+    <h1>{{ product.name }}</h1>
     <h2>
-        {{ object.price }} 
+        {{ product.price }} 
     </h2>
     <p>
-        Кол-во: {{ object.quantity }}
+        Кол-во: {{ product.quantity }}
     </p>
-    <small>{{ object.short_description }}</small>
+    <small>{{ product.short_description }}</small>
     <br>
-    {% for img in object.images_attr %} 
+    {% for img in product.images_attr %} 
                     <img src="{{ img.image.url }}" alt="" width="100" height="100" style="object-fit: cover;">
     {% endfor %}
     <br>
-    {{ object.description|safe }}
+    {{ product.description|safe }}
+    <br><hr>
+    <form action="{% url 'cart-detail' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Добавить</button>
+    </form>
 </body>
 </html>

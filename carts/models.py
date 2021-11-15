@@ -46,6 +46,19 @@ class Cart(models.Model):
             return False
         return True
 
+    def add_to_cart(self, product, quantity):
+        return CartItem.objects.create(
+            cart=self,
+            product=product,
+            quantity=quantity
+        )
+
+    def remove_from_cart(self, product):
+        return CartItem.objects.get(
+            cart=self,
+            product=product
+        ).delete()
+
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE,
