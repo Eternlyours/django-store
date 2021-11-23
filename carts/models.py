@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 
 from django.contrib.auth.models import User
+from django.core.checks.messages import Error
 from django.db import models
 from products.models import Product
 
@@ -47,11 +48,32 @@ class Cart(models.Model):
         return True
 
     def add_to_cart(self, product, quantity):
-        return CartItem.objects.create(
+        if quantity == 0:
+            return self.remove_from_cart(product)
+        product = Product.objects.get(pk=product)
+        item, created = CartItem.objects.get_or_create(
             cart=self,
-            product=product,
-            quantity=quantity
+            product=product
         )
+        if not created:    
+            item.quantity += quantity
+        else:
+            item.quantity = quantity
+        if item.check_the_quantity_of_goods():
+            item.save()
+        return item
+
+    def update_cart(self, product, quantity):
+        if quantity == 0:
+            return self.remove_from_cart(product)
+        product = Product.objects.get(pk=product)
+        item = CartItem.objects.get(
+            cart=self,
+            product=product
+        )
+        item.quantity = quantity
+        item.save()
+        return item
 
     def remove_from_cart(self, product):
         return CartItem.objects.get(
@@ -69,3 +91,8 @@ class CartItem(models.Model):
 
     def calculate_price_item(self):
         return self.quantity * self.product.price
+
+    def check_the_quantity_of_goods(self):
+        if self.product.quantity < self.quantity:
+            return False
+        return True

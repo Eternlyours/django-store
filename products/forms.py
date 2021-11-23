@@ -36,14 +36,19 @@ class ProductAdminModelFormOverride(CkeditorWidgetDescriptionMixin, forms.ModelF
 
 
 class ProductAddToCartForm(forms.Form):
-    quantity = forms.IntegerField(min_value=1, label='Количество', initial=1)
+    quantity = forms.IntegerField(min_value=0, label='Количество', initial=1, required=True)
     product = forms.CharField(
         max_length=255, required=True, widget=forms.HiddenInput())
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        self.cart = kwargs.pop('cart', None)
+        super().__init__(*args, **kwargs)
 
     def clean(self):
         data = super().clean()
         product = data.get('product')
-        quantity = data.get('quantity')
-        if get_object_or_404(Product, slug=product).quantity < quantity:
-            raise ValidationError('Недостаточно товаров на складе')    
+        quantity = data.get('quantity', 1)
+        if get_object_or_404(Product, pk=product).quantity < quantity:
+            raise ValidationError('Недостаточно товаров на складе')   
         return data

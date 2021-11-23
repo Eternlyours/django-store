@@ -26,7 +26,7 @@
     <br>
     {{ product.description|safe }}
     <br><hr>
-    <form action="{% url 'cart-detail' %}" method="post">
+    <form action="{% url 'add-to-cart' %}" method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Добавить</button>
