@@ -3,11 +3,12 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.serializers.json import DjangoJSONEncoder
-from django.http.response import HttpResponse, JsonResponse
+from django.http.response import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, FormMixin, UpdateView
+from carts.forms import CartInlineForm
 from products.forms import ProductAddToCartForm
 from products.models import Product
 
@@ -51,13 +52,17 @@ class CartMixin:
 
 
 class CartDetailView(CartMixin, DetailView):
-    # model = Cart
     queryset = Cart.objects.get_cart_items()
     template_name = 'cart-detail.html'
     context_object_name = 'cart'
 
     def get_object(self, queryset=None):
         return self.cart
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['formset'] = CartInlineForm(instance=self.cart)
+        return context
 
 
 class CartItemAddToCartView(JSONResponsableMixin, View):
@@ -78,20 +83,18 @@ class CartItemAddToCartView(JSONResponsableMixin, View):
             return self.form_invalid(form)
 
 
+class CartItemUpdateView(JSONResponsableMixin, CartMixin, View):
+    object = None
 
-class CartItemUpdateView(JSONResponsableMixin, View):
-    form_class = ProductAddToCartForm
+    def get_object(self):
+        return self.cart
 
-    @method_decorator(login_required())
     def post(self, request, *args, **kwargs):
-        form = self.get_form()
-        if form.is_valid():
-            data = form.cleaned_data
-            cart = Cart.objects.get(user=self.request.user)
-            cart.update_cart(
-                product=data.get('product'),
-                quantity=data.get('quantity')
-            )
-            return self.form_valid(form)
+        self.object = self.get_object()
+        formset = CartInlineForm(
+            request.POST, instance=self.object)
+        if formset.is_valid():
+            formset.save()
+            return self.form_valid(formset)
         else:
-            return self.form_invalid(form)
+            return self.form_invalid(formset)

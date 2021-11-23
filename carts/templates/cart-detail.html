@@ -11,28 +11,38 @@
     <hr>
     {{ cart }}
     {% if cart %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Артикул</th>
-                    <th>Наименование</th>
-                    <th>Стоимость</th>
-                    <th>На складе</th>
-                    <th>Количество</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in cart.cartitems.all %}
+        <form action="{% url 'cart-update' %}" method="post">
+            {% csrf_token %}
+            {{ formset.management_form }}
+            <table>
+                <thead>
                     <tr>
-                        <td>{{ item.product.article }}</td>
-                        <td>{{ item.product.name }}</td>
-                        <td>{{ item.product.price }}</td>
-                        <td>{{ item.product.quantity }}</td>
-                        <td>{{ item.quantity }}</td>
+                        <th>Артикул</th>
+                        <th>Наименование</th>
+                        <th>Стоимость</th>
+                        <th>На складе</th>
+                        <th>Количество</th>
+                        <th></th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% load cart_tags %}
+                    {% for item, field in cart.cartitems.all|zip:formset %}
+                        <tr>
+                            <td>{{ item.product.article }}</td>
+                            <td>{{ item.product.name }}</td>
+                            <td>{{ item.product.price }}</td>
+                            <td>{{ item.product.quantity }}</td>
+                            <td>
+                                {{ field.id }}
+                                {{ field.quantity }} {% if formset.can_delete %} {{ field.DELETE }}- удалить {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button type="submit">Сохранить</button>
+        </form>
     {% else %}
         <strong>Отсутствуют товары в корзине</strong>
     {% endif %}
