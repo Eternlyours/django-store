@@ -11,11 +11,11 @@ from .utils import get_and_calculate_the_quantity, set_price_or_quantity
 
 
 class Product(models.Model):
-    slug = models.SlugField('Семантический URL', unique=True, max_length=255)
-    name = models.CharField('Наименование', max_length=255)
+    slug = models.SlugField('Семантический URL', unique=True, max_length=255, db_index=True)
+    name = models.CharField('Наименование', max_length=255, db_index=True)
     brand = models.ForeignKey('Brand', on_delete=models.CASCADE,
                               to_field='name', default='Stihl', verbose_name='Производитель')
-    article = models.CharField('Артикул', unique=True, max_length=255)
+    article = models.CharField('Артикул', unique=True, max_length=255, db_index=True)
     category = models.ForeignKey(
         'Category', on_delete=models.CASCADE, to_field='name', verbose_name='Категория')
     is_active = models.BooleanField('Отображать на сайте', default=True)
@@ -30,6 +30,7 @@ class Product(models.Model):
     class Meta:
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
+        index_together = (('id', 'slug',), )
 
     def __str__(self) -> str:
         return f'{self.article} {self.name}'

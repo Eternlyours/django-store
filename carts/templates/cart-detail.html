@@ -16,9 +16,14 @@
         }
     </style>
     {% if cart %}
-        <form action="{% url 'cart-update' %}" method="post">
+        <form action="{% url 'cart-detail' %}" method="post">
             {% csrf_token %}
             {{ formset.management_form }}
+            {% for dict in formset.errors %}
+                {% for error in dict.values %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            {% endfor %}
             <table>
                 <thead>
                     <tr>

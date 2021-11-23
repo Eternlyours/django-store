@@ -3,14 +3,16 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.serializers.json import DjangoJSONEncoder
-from django.http.response import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http.response import (HttpResponse, HttpResponseRedirect,
+                                  JsonResponse)
+from django.urls.base import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, FormMixin, UpdateView
-from carts.forms import CartInlineForm
 from products.forms import ProductAddToCartForm
-from products.models import Product
+
+from carts.forms import CartInlineForm
 
 from .models import Cart, CartItem
 
@@ -59,10 +61,49 @@ class CartDetailView(CartMixin, DetailView):
     def get_object(self, queryset=None):
         return self.cart
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['formset'] = CartInlineForm(instance=self.cart)
-        return context
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        formset = CartInlineForm(instance=self.cart)
+        return self.render_to_response(self.get_context_data(formset=formset))
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        formset = CartInlineForm(
+            request.POST, instance=self.object)
+        if formset.is_valid():
+            formset.save()
+            return HttpResponseRedirect(reverse_lazy('cart-detail'))
+        else:
+            return self.render_to_response(self.get_context_data(formset=formset))
+
+
+# class CartDetailView(FormMixin, CartMixin, DetailView):
+#     queryset = Cart.objects.get_cart_items()
+#     template_name = 'cart-detail.html'
+#     context_object_name = 'cart'
+#     form_class = CartInlineForm
+#     success_url = '/cart/'
+
+#     def get_object(self, queryset=None):
+#         return self.cart
+
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         if self.request.POST:
+#             context['formset'] = CartInlineForm(self.request.POST ,instance=self.cart)
+#         else:
+#             context['formset'] = CartInlineForm(instance=self.cart)
+#         return context
+
+#     def post(self, request, *args, **kwargs):
+#         self.object = self.get_object()
+#         formset = CartInlineForm(
+#             request.POST, instance=self.object)
+#         if formset.is_valid():
+#             formset.save()
+#             return self.form_valid(formset)
+#         else:
+#             return self.form_invalid(formset)
 
 
 class CartItemAddToCartView(JSONResponsableMixin, View):
