@@ -63,18 +63,6 @@ class Cart(models.Model):
             item.save()
         return item
 
-    def update_cart(self, product, quantity):
-        if quantity == 0:
-            return self.remove_from_cart(product)
-        product = Product.objects.get(pk=product)
-        item = CartItem.objects.get(
-            cart=self,
-            product=product
-        )
-        item.quantity = quantity
-        item.save()
-        return item
-
     def remove_from_cart(self, product):
         return CartItem.objects.get(
             cart=self,

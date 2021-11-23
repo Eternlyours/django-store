@@ -48,7 +48,7 @@ class Product(models.Model):
         if self.quantities.exists():
             return get_and_calculate_the_quantity(self)
         return 0
-    _get_quantity.short_description = 'Актуальное количество на складе'
+    _get_quantity.short_description = 'Количество'
 
     def _set_quantity(self, kwargs) -> None:
         ProductDocumentReceipt = apps.get_model('products_log', 'ProductDocumentReceipt')
@@ -61,7 +61,7 @@ class Product(models.Model):
         if self.prices.exists():
             return getattr(self.prices.last(), 'price')
         return 0
-    _get_price.short_description = 'Актуальная стоимость'    
+    _get_price.short_description = 'Стоимость'    
 
     def _set_price(self, kwargs) -> None:
         ProductDocumentPrice = apps.get_model('products_log', 'ProductDocumentPrice')

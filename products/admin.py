@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.contrib.admin.decorators import display
+from django.utils.safestring import mark_safe
 from import_export.admin import ImportExportModelAdmin
 from products_eav.admin import ProductTechnicalValueInline
 from products_log.admin import ProductDocumentPriceAdminTabularInfo, ProductDocumentReceiptAdminStackedInline
@@ -17,14 +19,17 @@ class ProductImagesInline(admin.TabularInline):
 
 
 class ProductAdmin(ImportExportModelAdmin):
-    list_display = ('article', 'name', 'category', )
+    list_display = ('article', 'name', 'category', 'price', 'quantity', 'get_thumb_image', 'is_active', )
     list_display_links = ('article', 'name', )
     list_select_related = ('brand', 'category', )
-    readonly_fields = ('slug', 'quantity', 'price', )
+    readonly_fields = ('slug', 'quantity', 'price', 'get_thumb_image', )
+    list_filter = ('brand__name', 'category__name', 'is_active', )
+    search_fields = ('slug', 'article', 'name', 'category__name', 'brand__name', 'description', 'meta_keyword', )
+    list_editable = ('is_active', )
     fieldsets = (
         ('Стандартная информация', {
             'fields': (
-                'slug',
+                ('slug', 'get_thumb_image',),
                 'name',
                 ('quantity', 'price'),
                 ('article', 'is_active', ),
@@ -51,6 +56,11 @@ class ProductAdmin(ImportExportModelAdmin):
     resource_class = ProductResource
     form = ProductAdminModelFormOverride
     # change_form_template = 'admin/products/change_form.html'
+
+    @display(description='Изображение')
+    def get_thumb_image(self, obj):
+        img = obj.images.first()
+        return mark_safe(f'<img src={img.image.url} width=150 height=100 style="object-fit:cover;">') 
 
     def get_queryset(self, request):
         return Product.objects.get_product_list()

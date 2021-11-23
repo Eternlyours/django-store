@@ -122,20 +122,3 @@ class CartItemAddToCartView(JSONResponsableMixin, View):
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
-
-
-class CartItemUpdateView(JSONResponsableMixin, CartMixin, View):
-    object = None
-
-    def get_object(self):
-        return self.cart
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        formset = CartInlineForm(
-            request.POST, instance=self.object)
-        if formset.is_valid():
-            formset.save()
-            return self.form_valid(formset)
-        else:
-            return self.form_invalid(formset)
