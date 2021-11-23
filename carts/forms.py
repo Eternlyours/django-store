@@ -10,11 +10,10 @@ class CartItemModelForm(forms.ModelForm):
         model = CartItem
         fields = ('quantity', )
 
-
-class CartModelForm(models.ModelForm):
-    class Meta:
-        model = Cart
-        fields = ('user', )
-
+    def clean(self):
+        data = self.cleaned_data
+        if data.get('quantity') == 0:
+            data.update({'DELETE': True})
+        return data
 
 CartInlineForm = models.inlineformset_factory(Cart, CartItem, form=CartItemModelForm, extra=0)

@@ -10,6 +10,11 @@
     {{ cart.calculate_quantity_items_in_cart }} | {{ cart.calculate_price_items_in_cart }}
     <hr>
     {{ cart }}
+    <style>
+        table, tr, th {
+            border: 1px solid black;
+        }
+    </style>
     {% if cart %}
         <form action="{% url 'cart-update' %}" method="post">
             {% csrf_token %}
@@ -35,7 +40,10 @@
                             <td>{{ item.product.quantity }}</td>
                             <td>
                                 {{ field.id }}
-                                {{ field.quantity }} {% if formset.can_delete %} {{ field.DELETE }}- удалить {% endif %}
+                                {{ field.quantity }}
+                            </td>
+                            <td>
+                                {% if formset.can_delete %} {{ field.DELETE }} - удалить {% endif %}
                             </td>
                         </tr>
                     {% endfor %}
