@@ -16,7 +16,7 @@ class CartItemModelForm(forms.ModelForm):
         if data.get('quantity') == 0:
             data.update({'DELETE': True})
         if data.get('quantity') > self.instance.product.quantity:
-            raise ValidationError('Недостаточно товаров на складе')
+            raise ValidationError('Недостаточно товаров на складе')      
         return data
 
 CartInlineForm = models.inlineformset_factory(Cart, CartItem, form=CartItemModelForm, extra=0)

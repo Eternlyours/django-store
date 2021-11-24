@@ -7,7 +7,7 @@
     <title>Document</title>
 </head>
 <body>
-    {{ cart.calculate_quantity_items_in_cart }} | {{ cart.calculate_price_items_in_cart }}
+    <a href="{% url 'cart-detail' %}">{{ cart.calculate_quantity_items_in_cart }} | {{ cart.calculate_price_items_in_cart }}</a>
     <hr>
     <table border="1">
         <thead>

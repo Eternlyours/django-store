@@ -72,6 +72,7 @@ class CartDetailView(CartMixin, DetailView):
             request.POST, instance=self.object)
         if formset.is_valid():
             formset.save()
+            self.object.check_cartitems_stock()
             return HttpResponseRedirect(reverse_lazy('cart-detail'))
         else:
             return self.render_to_response(self.get_context_data(formset=formset))
@@ -106,7 +107,26 @@ class CartDetailView(CartMixin, DetailView):
 #             return self.form_invalid(formset)
 
 
-class CartItemAddToCartView(JSONResponsableMixin, View):
+# class CartItemAddToCartView(JSONResponsableMixin, View):
+#     form_class = ProductAddToCartForm
+
+#     @method_decorator(login_required())
+#     def post(self, request, *args, **kwargs):
+#         form = self.get_form()
+#         if form.is_valid():
+#             data = form.cleaned_data
+#             cart, created = Cart.objects.get_or_create(user=self.request.user)
+#             cart.add_to_cart(
+#                 product=data.get('product'),
+#                 quantity=data.get('quantity', 1)
+#             )    
+#             return self.form_valid(form)
+#         else:
+#             return self.form_invalid(form)
+
+
+class CartItemAddToCartView(JSONResponsableMixin, CartMixin, CreateView):
+    model = CartItem
     form_class = ProductAddToCartForm
 
     @method_decorator(login_required())

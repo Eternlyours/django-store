@@ -30,6 +30,11 @@ class Cart(models.Model):
             status = 'Неактивна'
         return f'Корзина {self.user} - {datetime.strftime(self.created_at, "%m/%d/%Y, %H:%M:%S")} {status}'
 
+    def check_cartitems_stock(self):
+        if self.cartitems.count() == 0:
+            return self.delete()
+        return True
+
     def calculate_quantity_items_in_cart(self):
         quantity = 0
         for item in self.cartitems.all():
