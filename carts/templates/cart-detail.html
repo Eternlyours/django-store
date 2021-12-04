@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <title>Document</title>
 </head>
 <body>
@@ -14,16 +15,14 @@
         table, tr, th {
             border: 1px solid black;
         }
+        th, td {
+            padding: 10px 5px;
+        }
     </style>
     {% if cart %}
         <form action="{% url 'cart-detail' %}" method="post">
             {% csrf_token %}
             {{ formset.management_form }}
-            {% for dict in formset.errors %}
-                {% for error in dict.values %}
-                    <p>{{ error }}</p>
-                {% endfor %}
-            {% endfor %}
             <table>
                 <thead>
                     <tr>
@@ -51,6 +50,13 @@
                                 {% if formset.can_delete %} {{ field.DELETE }} - удалить {% endif %}
                             </td>
                         </tr>
+                        {% if field.quantity.errors %}
+                            <tr>
+                                <td colspan="6" class="alert alert-danger">
+                                    {{ field.quantity.errors }}
+                                </td>
+                            </tr>
+                        {% endif %}
                     {% endfor %}
                 </tbody>
             </table>
@@ -60,5 +66,12 @@
         <strong>Отсутствуют товары в корзине</strong>
     {% endif %}
     <hr>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
 </body>
 </html>

@@ -15,8 +15,19 @@ class CartItemModelForm(forms.ModelForm):
         data = self.cleaned_data
         if data.get('quantity') == 0:
             data.update({'DELETE': True})
-        if data.get('quantity') > self.instance.product.quantity:
-            raise ValidationError('Недостаточно товаров на складе')      
         return data
+    
+    def clean_quantity(self):
+        quantity = self.cleaned_data['quantity']
+        if quantity > self.instance.product.quantity:
+            i = int(quantity) - int(self.instance.product.quantity)
+            msg = f'''
+                Товара {self.instance.product.name} недостаточно
+                {int(quantity) - int(self.instance.product.quantity)} штук,
+                на складе {self.instance.product.quantity}, пожалуйста,
+                введите корректное количество
+            '''
+            raise ValidationError(msg)
+        return quantity
 
 CartInlineForm = models.inlineformset_factory(Cart, CartItem, form=CartItemModelForm, extra=0)

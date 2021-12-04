@@ -41,6 +41,7 @@ class ProductAddToCartForm(forms.Form):
         max_length=255, required=True, widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
+        self.product = kwargs.pop('product', None)
         self.user = kwargs.pop('user', None)
         self.cart = kwargs.pop('cart', None)
         super().__init__(*args, **kwargs)
@@ -49,6 +50,10 @@ class ProductAddToCartForm(forms.Form):
         data = super().clean()
         product = data.get('product')
         quantity = data.get('quantity', 1)
+        print(self.product)
         if get_object_or_404(Product, pk=product).quantity < quantity:
-            raise ValidationError('Недостаточно товаров на складе')   
+            self.add_error('quantity', 'Недостаточно товаров на складе')
+            # raise ValidationError('Недостаточно товаров на складе')   
         return data
+
+    

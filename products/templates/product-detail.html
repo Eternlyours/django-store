@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="{{ product.meta_description }}">
     <meta name="keywords" content="{{ product.meta_keyword }}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <title>Document</title>
 </head>
 <body>
@@ -26,10 +27,52 @@
     <br>
     {{ product.description|safe }}
     <br><hr>
-    <form action="{% url 'add-to-cart' %}" method="post">
+    <form action="{% url 'add-to-cart' %}" method="post" id="form">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form.quantity }}
+        {{ form.product }}
         <button type="submit">Добавить</button>
     </form>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <script>
+        let form = document.getElementById("form");
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+            let response = await fetch(form.getAttribute("action"), {
+                method: this.getAttribute('method'),
+                body: new FormData(this),
+                cache: 'no-cache',
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+            });
+
+            if (response.ok) {
+                alert('Успех!');
+                window.location.href = window.location.href;
+            } else {
+                let errors = await response.json();
+                errors = JSON.parse(errors.errors);                
+                
+                document.querySelectorAll('.errors').forEach(el => el.remove());
+            
+                for (let name in errors) {
+                    for (let i in errors[name]) {
+                        let input = document.querySelector(`[name='${name}'`);
+                        let errEl = document.createElement("div");
+                        errEl.className = "errors alert alert-danger";
+                        errEl.innerHTML = errors[name][i];
+                        input.insertAdjacentHTML("afterend", errEl.outerHTML);
+                    }
+                }
+            }
+        })
+    </script>    
 </body>
 </html>
