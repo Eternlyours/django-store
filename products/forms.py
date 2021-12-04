@@ -49,11 +49,17 @@ class ProductAddToCartForm(forms.Form):
     def clean(self):
         data = super().clean()
         product = data.get('product')
-        quantity = data.get('quantity', 1)
-        print(self.product)
+        quantity = data.get('quantity')
         if get_object_or_404(Product, pk=product).quantity < quantity:
             self.add_error('quantity', 'Недостаточно товаров на складе')
-            # raise ValidationError('Недостаточно товаров на складе')   
         return data
 
+    def clean_quantity(self):
+        data = self.cleaned_data
+        quantity = data.get('quantity')
+        if quantity == 0 or quantity == '':
+            self.add_error('quantity', 'Введите корректное количество!')
+        return quantity
+
+    
     

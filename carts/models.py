@@ -4,7 +4,9 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.core.checks.messages import Error
 from django.db import models
+from django.contrib import messages
 from products.models import Product
+from django.shortcuts import get_object_or_404
 
 from .manager import CartManager
 
@@ -53,20 +55,12 @@ class Cart(models.Model):
         return True
 
     def add_to_cart(self, product, quantity):
-        if quantity == 0:
-            return self.remove_from_cart(product)
-        product = Product.objects.get(pk=product)
-        item, created = CartItem.objects.get_or_create(
+        cartitem = CartItem.add_item_to_cart(
             cart=self,
-            product=product
+            product=product,
+            quantity=quantity
         )
-        if not created:    
-            item.quantity += quantity
-        else:
-            item.quantity = quantity
-        if item.check_the_quantity_of_goods():
-            item.save()
-        return item
+        return cartitem
 
     def remove_from_cart(self, product):
         return CartItem.objects.get(
@@ -89,3 +83,13 @@ class CartItem(models.Model):
         if self.product.quantity < self.quantity:
             return False
         return True
+
+    def add_item_to_cart(cart, product, quantity):
+        product = get_object_or_404(Product, pk=product)
+        item, created = CartItem.objects.get_or_create(
+            cart=cart,
+            product=product
+        )
+        item.quantity = quantity
+        item.save()
+        return item

@@ -12,6 +12,13 @@
 <body>
     {{ cart.calculate_quantity_items_in_cart }} | {{ cart.calculate_price_items_in_cart }}
     <hr>
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+{% endif %}
     <h1>{{ product.name }}</h1>
     <h2>
         {{ product.price }} 
@@ -27,6 +34,7 @@
     <br>
     {{ product.description|safe }}
     <br><hr>
+    
     <form action="{% url 'add-to-cart' %}" method="post" id="form">
         {% csrf_token %}
         {{ form.quantity }}
@@ -54,7 +62,6 @@
             });
 
             if (response.ok) {
-                alert('Успех!');
                 window.location.href = window.location.href;
             } else {
                 let errors = await response.json();

@@ -8,10 +8,13 @@
     <title>Document</title>
 </head>
 <body>
-    <a href="{% url 'cart-detail' %}">{{ cart.calculate_quantity_items_in_cart }} | {{ cart.calculate_price_items_in_cart }}</a>
-    <hr>
+    <div class="nav">
+        <a href="{% url 'cart-detail' %}">{{ cart.calculate_quantity_items_in_cart }} | {{ cart.calculate_price_items_in_cart }}</a>
+    </div>
+
     <table border="1">
         <thead>
+            <th>Номер</th>
             <td>Артикул</td>
             <td>Бренд</td>
             <td>Категория</td>
@@ -24,6 +27,7 @@
         <tbody>
         {% for object in object_list %}
         <tr>
+            <th>{{ forloop.counter }}</th>
             <td>{{ object.article }}</td>
             <td>{{ object.brand.name }}</td>
             <td><a href="{% url 'product-detail' object.slug %}">{{ object.category.name }}</a></td>

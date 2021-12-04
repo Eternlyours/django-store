@@ -9,12 +9,12 @@ from products.models import Product
 
 
 class ProductListView(CartMixin, ListView):
-    queryset = Product.objects.get_product_list().filter(is_active=True)
+    queryset = Product.objects.get_product_list().only_active()
     template_name = 'product-list.html'
 
 
 class ProductDetailView(FormMixin, CartMixin, DetailView):
-    queryset = Product.objects.get_product_list().filter(is_active=True)
+    queryset = Product.objects.get_product_list().only_active()
     template_name = 'product-detail.html'
     context_object_name = 'product'
     form_class = ProductAddToCartForm
