@@ -55,12 +55,12 @@ class Cart(models.Model):
         return True
 
     def add_to_cart(self, product, quantity):
-        cartitem = CartItem.add_item_to_cart(
+        cartitem, message = CartItem.add_item_to_cart(
             cart=self,
             product=product,
             quantity=quantity
         )
-        return cartitem
+        return message
 
     def remove_from_cart(self, product):
         return CartItem.objects.get(
@@ -92,4 +92,9 @@ class CartItem(models.Model):
         )
         item.quantity = quantity
         item.save()
-        return item
+        message = f'''
+            Товар {product.name} добавлен в корзину
+            в количестве {item.quantity} шт.
+            Желаем хороших покупок!
+        '''
+        return item, message

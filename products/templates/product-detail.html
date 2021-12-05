@@ -13,12 +13,12 @@
     {{ cart.calculate_quantity_items_in_cart }} | {{ cart.calculate_price_items_in_cart }}
     <hr>
     {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-            {% endfor %}
-        </ul>
-{% endif %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>            
+        {% endfor %}
+    {% endif %}
     <h1>{{ product.name }}</h1>
     <h2>
         {{ product.price }} 
@@ -34,10 +34,15 @@
     <br>
     {{ product.description|safe }}
     <br><hr>
-    
-    <form action="{% url 'add-to-cart' %}" method="post" id="form">
+    {#{% url 'add-to-cart' %}#}
+    <form action="" method="post" id="form">
         {% csrf_token %}
         {{ form.quantity }}
+        {% if form.quantity.errors %}
+            <div class="alert alert-danger">
+                {{ form.quantity.errors }}
+            </div>
+        {% endif %}
         {{ form.product }}
         <button type="submit">Добавить</button>
     </form>
@@ -49,37 +54,37 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
     <script>
-        let form = document.getElementById("form");
-        form.addEventListener("submit", async function (e) {
-            e.preventDefault();
-            let response = await fetch(form.getAttribute("action"), {
-                method: this.getAttribute('method'),
-                body: new FormData(this),
-                cache: 'no-cache',
-                headers: {
-                    "X-Requested-With": "XMLHttpRequest"
-                },
-            });
+        // let form = document.getElementById("form");
+        // form.addEventListener("submit", async function (e) {
+        //     e.preventDefault();
+        //     let response = await fetch(form.getAttribute("action"), {
+        //         method: this.getAttribute('method'),
+        //         body: new FormData(this),
+        //         cache: 'no-cache',
+        //         headers: {
+        //             "X-Requested-With": "XMLHttpRequest"
+        //         },
+        //     });
 
-            if (response.ok) {
-                window.location.href = window.location.href;
-            } else {
-                let errors = await response.json();
-                errors = JSON.parse(errors.errors);                
+        //     if (response.ok) {
+        //         window.location.href = window.location.href;
+        //     } else {
+        //         let errors = await response.json();
+        //         errors = JSON.parse(errors.errors);                
                 
-                document.querySelectorAll('.errors').forEach(el => el.remove());
+        //         document.querySelectorAll('.errors').forEach(el => el.remove());
             
-                for (let name in errors) {
-                    for (let i in errors[name]) {
-                        let input = document.querySelector(`[name='${name}'`);
-                        let errEl = document.createElement("div");
-                        errEl.className = "errors alert alert-danger";
-                        errEl.innerHTML = errors[name][i];
-                        input.insertAdjacentHTML("afterend", errEl.outerHTML);
-                    }
-                }
-            }
-        })
+        //         for (let name in errors) {
+        //             for (let i in errors[name]) {
+        //                 let input = document.querySelector(`[name='${name}'`);
+        //                 let errEl = document.createElement("div");
+        //                 errEl.className = "errors alert alert-danger";
+        //                 errEl.innerHTML = errors[name][i];
+        //                 input.insertAdjacentHTML("afterend", errEl.outerHTML);
+        //             }
+        //         }
+        //     }
+        // })
     </script>    
 </body>
 </html>
